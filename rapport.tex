@@ -141,16 +141,15 @@
 
 	\begin{figure}[h]
 		\begin{center}
-			\includegraphics[width=0.4\textwidth]{assets/main.jpg}
+			\includegraphics[width=0.5\textwidth]{assets/main.jpg}
 		\end{center}
 	\end{figure}
         
-	\vfill 
 	\begin{center}
         \textsc{\large
         	ESIREM \\
 			École Supérieure d'Ingénieurs de Recherche en Matériaux et en Infotronique\\       	
-			[2cm]
+			[1.5cm]
 		}
 	\end{center}
 
@@ -195,6 +194,17 @@
 \section*{Introduction}
 \addcontentsline{toc}{section}{Introduction}
 Introduction générale 
+
+Le but des tps reseaux
+
+Presenter ns2
+
+[A quoi sert la simulation des reseaux? Avantage]
+
+- permet de simuler un upgrade de la structure actuelle sans toucher ou staturer le reseau.   
+
+- permet de faire des simulations avant d'acheter un nouveau matérielle 
+
 
 \pagebreak
 
@@ -313,6 +323,7 @@ L'utilitaire s'ouvre sur l'interface présentée en Figure \ref{namVisu}. Pour m
 
 \subsubsection{Utilisation graphique de NAM}
 
+Maintenant il faut simuler le même réseau que dans la partie 1.1.1 mais cette fois avec l’interface graphique de nam. Pour cela nous allons tout d'abord faire une présentation rapide de l'interface graphique qui permet de créer la simulation. Pour lancer le logiciel il suffit de taper nam dans le terminal, ensuite il suffit d'aller dans fichier et cliquer sur nouveau éditeur nam,  l'utilitaire s'ouvre sur l'interface présentée en Figure \ref{namExplcation}.
 
 \begin{figure}[H]
 	\begin{center}
@@ -322,12 +333,56 @@ L'utilitaire s'ouvre sur l'interface présentée en Figure \ref{namVisu}. Pour m
 	\label{namExplcation}
 \end{figure}
 
+\noindent
+(1) Le menu permettant d’accéder aux différents fonctions proposé par le logiciel\\
+(2) Le menu d'action rapide qui permet d'avoir un raccourcis vers les fonctions présents dans le menu Tools\\
+(3) L'interface graphique ou il faut placer les différents objets \\
+(4) Le  curseur qui permet de sélectionner les objets et les bouger\\
+(5) L'option qui permet de créer des nœuds\\
+(6) Permet de faire le liens entre 2 nœuds ou 2 agents\\
+(7) Permet de choisir un agent\\
+(8) Permet de choisir une source de trafic \\
+(9) Zoom/Dézoom\\
+(10) Exemple de nœuds avec un agent TCP et une source de trafic FTP connecté a FTP\\
+(11) Exemple de nœuds avec un agent TCPSink\\
+
+Dans un premier temps on va créer 2 nœuds a l'aide du bouton ref(5) figure \ref{namExplcation}. Ensuite on les relis a l'aide du bouton ref(6) et avec in clic droit sur le lien on peut choisir le débit (Bandwidth), le temps de propagation (Delay) et la couleur du lien comme on peut le voir dans la figure \ref{ajoutLien}. Pour le type de file d'attente on peut le définir avec un clic droit le sur Q présent dans la figure \ref{ajoutLien}
+
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.6\textwidth]{assets/tp1/ajoutLienNoeud.png}
+	\end{center}
+	\caption{Ajout de lien entre 2 nœuds}
+	\label{ajoutLien}
+\end{figure}
+
+Ensuite on crée l'agent UDP en sélectionnant dans le liste présent dans le ref(7) figure \ref{namExplcation} l'agent UDP et on cliquant sur le nœud 1. Pour pouvoir envoyer des informations il faut ajouter une source de trafic, ici on va ajouter une source CBR a notre agent UDP a l'aide du ref(8) figure \ref{namExplcation}, avec un clic droit sur la source on peut modifier l'intervalle de trasmission des paquets et quand le trafic doit se déclencher et s’arrêter comme on peut le voir dans la figure \ref{modifCBR}. Ensuite on va jouter l'agent Null au nœud 2 et connecter l'agent null avec l'agent UDP, après cette opération on peut modifier les options de UDP et changer la taille des paquets a 500 octets avec un clic droit sur l'agent UDP. Enfin pour modifier le temps de fin de simulation, il faut aller dans le menu \textit{Éditer} puis dans \textit{Propriétés du Simulateur}.
+
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.6\textwidth]{assets/tp1/modifCBR.png}
+	\end{center}
+	\caption{Configuration source CBR}
+	\label{modifCBR}
+\end{figure}
+
+La création de simulation avec l'interface graphique comporte quelques défauts comme par exemple la taille des paquets (packetSize) qui ne peut pas dépasser 210 octets alors qu'on les a fixer a 500.
+
 \subsection{Exercice 2: Fonctionnement TCP vs UDP}
 
 
 
-[conclusion de la partie]
 
+
+
+--------------------------------------------------------------------------------------
+
+[conclusion de la partie (Pour conclure cette partie ...)] \\
+
+
+Dans ce premier TP, nous avons pu nous familiariser avec l’outil de simulation NS-2. Avec tout d’abord la réalisation d'un réseau à l’aide d’un script OTCL permettant de découvrir le langauge et son fonctionnement, puis la visualisation la création de ce même réseau avec l'éditeur graphique nam permettant ainsi de se familiariser avec cette outil. 
+
+Dans un deuxième temps nous avons pu comparer deux modes de communications (TCP et UDP) vu en cours pour mieux comprendre leur fonctionnement. Nous avons pu identifier le comportement de ces 2 modes de communication en cas de congestion ou encore visualiser l'envoie de données. Pour le protocole TCP nous avons visualisé l'envoie des segment TCP, la demande de connexion et l'acquittement. Pour le protocole UDP nous avons vu le mode non connecté et l'envoie de segment UDP (datagrame).
 
 \pagebreak
 % Partie 2
@@ -340,6 +395,10 @@ L'utilitaire s'ouvre sur l'interface présentée en Figure \ref{namVisu}. Pour m
 \subsection{Exercice 2: Routage et contrôle de congestion TCP}
 
 [conclusion de la partie]
+
+
+
+
 
 \pagebreak
 % Partie 3
