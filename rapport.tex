@@ -103,8 +103,8 @@
 }
 
 % Pour changer les listings en Code
-\renewcommand\lstlistingname{Code}
-\renewcommand\lstlistlistingname{Codes}
+\renewcommand\lstlistingname{Script}
+\renewcommand\lstlistlistingname{Script}
 
 \setlist[itemize]{label=\textbullet} % pour tous les itemize changer le tiret avec un rond
 
@@ -218,7 +218,6 @@ Presenter ns2
 Dans un premier temps le but est de compléter le script fournis pour comprend se familiariser avec le language et comprendre son fonctionnent
 
 \subsubsection{Compléter le script}
-\noindent 
 Pour créer deux nœuds on utilise la commande \textbf{set}. Pour cela on peut soit créer les nœuds un par un soit le faire a l'aide d'un boucle for :
 
 \begin{lstlisting}[language=tcl, numbers=none, framexleftmargin=0pt, framextopmargin=0pt, framexbottommargin=0pt]
@@ -238,7 +237,7 @@ Pour relier les deux nœuds on utilisera les paramètres suivants:
 $ns duplex-link $n(0) $n(1) 1Mb 10ms DropTail
 \end{lstlisting}
 
-\noindent
+
 Créer un agent UDP et l'attacher a n0. Ici la variable udp est une instance de la classe UDP qui hérite de la classe Agent
 
 \begin{lstlisting}[language=tcl, numbers=none, framexleftmargin=0pt, 	framextopmargin=0pt, framexbottommargin=0pt]
@@ -261,14 +260,13 @@ $cbr set packetSize_ 500bytes
 $cbr set interval_ 0.005s
 \end{lstlisting}
 
-\noindent
+
 Après avoir créer la source CBR, il faut maintenant le connecter a l'agent UDP avec la commande \textbf{attach-agent}
 \begin{lstlisting}[language=tcl, numbers=none, framexleftmargin=0pt, 	framextopmargin=0pt, framexbottommargin=0pt]
 #connecter le cbr a l'agent UDP
 $cbr attach-agent $udp
 \end{lstlisting}
 
-\noindent
 
 Ensuite on doit créer l'agent null pour la réception des paquets dans le noeud 1 et connecter les deux agents Null et UDP
 \begin{lstlisting}[language=tcl, numbers=none, framexleftmargin=0pt, 	framextopmargin=0pt, framexbottommargin=0pt]
@@ -294,7 +292,7 @@ $ns run
 
 
 \noindent
-Le script en entier se trouve dans l'annexe 1 ( pas encore fait le faire plus tard)
+Le script complet se trouve l'annexe \ref{tp1Exo1}
 
 \subsubsection{Visualisation de la simulation a l'aide de NAM}
 Une fois le script complété on ouvre un terminal et on tape la commande \textbf{ns exercice1.tcl} pour compiler et lancer l'interface graphique nam que l'on peut voir dans la figure \ref{namVisu}. Cette commande crée aussi un fichier out.nam qui a été définit plus haut dans le script, plus tard si on veux revoir la simulation avec nam il suffira de lancer la commande \textbf{nam out.nam}
@@ -370,19 +368,154 @@ La création de simulation avec l'interface graphique comporte quelques défauts
 
 \subsection{Exercice 2: Fonctionnement TCP vs UDP}
 
+Dans cette exercice on s’intéresse au fonctionnement de TCP et UDP, pour cela on va simuler le réseau de la figure \ref{resSimu}.
+
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.6\textwidth]{assets/tp1/reseauAFaire.png}
+	\end{center}
+	\caption{Réseau à réaliser}
+	\label{resSimu}
+\end{figure}
+
+Le script complet de cette exercice est disponible dans l'annexe \ref{tp1Exo2}. Par la suite nous ne détaillerons que les nouveaux éléments qui n'ont pas encore été abordé.
+
+Pour réaliser ce réseau, on va tout d'abord créer 4 nœuds avec un boucle for, ensuite on les relis avec un lien duplex de capacité 2Mb avec un temps de propagation de 10ms pour les liens entre les nœuds n0 - n2 et n1 -n2 et un lien de 1,7Mb et un temps de propagation de 20ms entre n2 - n3, avec une file d'attente de type DropTail.
+Par la suite on va créer 4 agent: 
+\begin{itemize}
+	\item TCP
+	\item UDP
+	\item Null
+	\item TCPSink
+\end{itemize}
+L'agent TCPSink servira a communiquer avec le protocole TCP et l'agent Null avec le protocole UDP. De plus on va attacher l'agent TCP au nœud n0, UDP au nœud n1, TCPSink et Null au nœud n3. Ensuite on va créer 2 applications qui serviront a envoyer des données. L'application FTP qui sera connecté a l'agent TCP et le CBR à UDP.\\
+
+Pour la partie configuration, on va limiter la taille du buffer entre n2 et n3 pour avoir une limité de 10 et pouvoir visualiser une congestion  avec la commande 
+\begin{lstlisting}[language=tcl, numbers=none, framexleftmargin=0pt, 	framextopmargin=0pt, framexbottommargin=0pt]
+$ns queue-limit $n(2) $n(3) 10
+\end{lstlisting}
+
+Pour l'agent CBR on va changer la taille des paquets a 1000 octets et un débit de 1Mb/s
+\begin{lstlisting}[language=tcl, numbers=none, framexleftmargin=0pt, 	framextopmargin=0pt, framexbottommargin=0pt]
+$cbr set packetSize_ 1000bytes
+$cbr set rate_ 1Mb
+\end{lstlisting}
+
+Pour positionner les nœuds on va utiliser la commande \textbf{duplex-link-op}.
+\begin{lstlisting}[language=tcl, numbers=none, framexleftmargin=0pt, 	framextopmargin=0pt, framexbottommargin=0pt]
+#positionner les noeuds
+$ns duplex-link-op $n(0) $n(2) orient right-down
+$ns duplex-link-op $n(1) $n(2) orient right-up
+$ns duplex-link-op $n(2) $n(3) orient right
+\end{lstlisting}
+
+Pour mieux visualiser et pouvoir distinguer les segments TCP et les datagrammes UDP on va les colorier, TCP en rouge et UDP en bleu.
+\begin{lstlisting}[language=tcl, numbers=none, framexleftmargin=0pt, 	framextopmargin=0pt, framexbottommargin=0pt]
+#déclaration de la couleur
+$ns color 1 Red
+$ns color 2 Blue
+
+#affecter couleurs
+$tcp set class_ 1
+$udp set class_ 2
+\end{lstlisting}
 
 
 
+Pour finir on va lancer le trafic CBR à 0.1s et le terminer a 4.5s, le trafic TFP se lancera a 1s et se terminera a 4s
+
+\begin{lstlisting}[language=tcl, numbers=none, framexleftmargin=0pt, 	framextopmargin=0pt, framexbottommargin=0pt]
+#declancher le trafic cbf
+$ns at 0.1 "$cbr start"
+$ns at 4.5 "$cbr stop"
+#declancher le trafic ftp
+$ns at 1 "$ftp start"
+$ns at 4 "$ftp stop"
+\end{lstlisting}
 
 
---------------------------------------------------------------------------------------
+Après la complication on se trouve dans nam qui compote notre simulation et on peut distinguer différentes étapes lors de son exécution.
 
-[conclusion de la partie (Pour conclure cette partie ...)] \\
+\begin{enumerate}
+	\item Envoie directe des données par UDP a 0.1s figure \ref{EnvoieUDP}
+	
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.6\textwidth]{assets/tp1/envoieDonneUDP.png}
+	\end{center}
+	\caption{Envoie de donné par UDP}
+	\label{EnvoieUDP}
+\end{figure}
+
+	\item Envoie d'un demande de connexion par TCP à 1s (n0 demande à n3) figure \ref{demandeCo}. Le nœud n3 accepte la connexion figure \ref{acceptCo}
+	
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.6\textwidth]{assets/tp1/demandeDeCo.png}
+	\end{center}
+	\caption{Demande de connexion TCP}
+	\label{demandeCo}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.6\textwidth]{assets/tp1/accepteCo.png}
+	\end{center}
+	\caption{Accepte demande de connexion TCP}
+	\label{acceptCo}
+\end{figure}
+
+	\item Envoie des premiers segments TCP après l’établissement de la connexion. Ensuite envoie des segments seulement après acquittement figure \ref{acuseRecep}
+
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.6\textwidth]{assets/tp1/acuseReceptionPaquet.png}
+	\end{center}
+	\caption{Accusé de réception d'un paquet}
+	\label{acuseRecep}
+\end{figure}
+	
+	\item Congestion au niveau du nœud 2 avec drop de segment
+	
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.6\textwidth]{assets/tp1/dropDePaquet.png}
+	\end{center}
+	\caption{Perte de paquet}
+	\label{acuseRecep}
+\end{figure}
+	
+	\item Après la perte des segments, UDP continu d'envoyer comme avant alors que TCP ayant détecté la perte 	réagit et diminue la quantité d’information envoyé, figure \ref{detectPaquete}
+
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.6\textwidth]{assets/tp1/tcpDetectionPerte.png}
+	\end{center}
+	\caption{Détection de perte de la part de TCP}
+	\label{detectPaquete}
+\end{figure}
+	
+	
+	
+\end{enumerate}
 
 
-Dans ce premier TP, nous avons pu nous familiariser avec l’outil de simulation NS-2. Avec tout d’abord la réalisation d'un réseau à l’aide d’un script OTCL permettant de découvrir le langauge et son fonctionnement, puis la visualisation la création de ce même réseau avec l'éditeur graphique nam permettant ainsi de se familiariser avec cette outil. 
+Au départ TCP envoie que 2 segments, après l’acquittement de ces segments, TCP va doubler la taille de la fenêtre et envoyer 4 et ainsi de suite jusqu'au moment ou il détecte une perte de segment et va réagir en diminuant la quantité d'information envoyé pour s'adapter au capacité du réseau (contrôle de congestion) figure \ref{detectPaquete}. 
 
-Dans un deuxième temps nous avons pu comparer deux modes de communications (TCP et UDP) vu en cours pour mieux comprendre leur fonctionnement. Nous avons pu identifier le comportement de ces 2 modes de communication en cas de congestion ou encore visualiser l'envoie de données. Pour le protocole TCP nous avons visualisé l'envoie des segment TCP, la demande de connexion et l'acquittement. Pour le protocole UDP nous avons vu le mode non connecté et l'envoie de segment UDP (datagrame).
+Au bout d'un moment nœud 2 reçoit trop d'information en même temps des nœuds n0 et n1 (4Mb/s) alors qu'il transmet qu'a 1.7MB/s, il est donc obligé de stocker les segments dans son buffer qui a une capacité limité (10). Quand le buffer du nœud n2 atteint sa capacité maximale le nœud commence a doper les paquets, on peut apercevoir ce comportement dans la figure 
+
+~\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+
+
+Pour conclure dans ce premier TP, nous avons pu nous familiariser avec l’outil de simulation NS-2. Avec tout d’abord la réalisation d'un réseau à l’aide d’un script OTCL permettant de découvrir le langauge et son fonctionnement, puis la visualisation la création de ce même réseau avec l'éditeur graphique nam permettant ainsi de se familiariser avec cette outil. Dans un deuxième temps nous avons pu comparer deux modes de communications (TCP et UDP) vu en cours pour mieux comprendre leur fonctionnement. Nous avons pu identifier le comportement de ces 2 modes de communication en cas de congestion ou encore visualiser l'envoie de données. Pour le protocole TCP nous avons visualisé l'envoie des segment TCP, la demande de connexion et l'acquittement. Pour le protocole UDP nous avons vu le mode non connecté et l'envoie de segment UDP (datagrame).
 
 \pagebreak
 % Partie 2
@@ -422,14 +555,7 @@ Dans un deuxième temps nous avons pu comparer deux modes de communications (TCP
 \section*{Annexes}
 \addcontentsline{toc}{section}{Annexes}
 
-
-
-
-
-[exemple de code TCL a effacer]
-
-
-\begin{lstlisting}[language=tcl, caption={exemple Code TCL}]
+\begin{lstlisting}[language=tcl, label={tp1Exo1}, caption={TP1 - Exercice1}]
 #Création d'une instance de l'objet Simulator
 set ns [new Simulator]
 
@@ -478,12 +604,93 @@ $ns at 5.0 "finish"
 
 #Executer la simulation
 $ns run
-
 \end{lstlisting} 
 
+~\\
 
+\begin{lstlisting}[language=tcl, label={tp1Exo2}, caption={TP1 - Exercice2}]
+#Création d'une instance de l'objet Simulator
+set ns [new Simulator]
 
+#Ouvrir le fichier trace pour nam
+set nf [open out2.nam w]
+$ns namtrace-all $nf
 
+#Définir la procedure de terminaison de la simuatation
+proc finish {} {
+	global ns nf
+	$ns flush-trace
+	#fermer le fichier trace
+	close $nf
+	#Exectuer le nam avec en entrée le fichier trace
+	exec nam out2.nam &
+	exit 0
+}
 
+#Insérer votre code
+set NodeNb 4
+for {set i 0} {$i<$NodeNb} {set i [expr $i+1]} {set n($i) [$ns node]}
+
+#connecter les deux noeuds
+$ns duplex-link $n(0) $n(2) 2Mb 10ms DropTail
+$ns duplex-link $n(1) $n(2) 2Mb 10ms DropTail
+$ns duplex-link $n(2) $n(3) 1.7Mb 20ms DropTail
+
+#creation des agents
+set tcp [new Agent/TCP]
+set udp [new Agent/UDP]
+set agentNull [new Agent/Null]
+set tcpSink [new Agent/TCPSink] 
+
+#creation des applications
+set ftp [new Application/FTP]
+set cbr [new Application/Traffic/CBR]
+
+#attacher agent aux noeuds
+$ns attach-agent $n(0) $tcp
+$ns attach-agent $n(1) $udp
+$ns attach-agent $n(3) $tcpSink
+$ns attach-agent $n(3) $agentNull
+
+#connecter les applications aux agents 
+$cbr attach-agent $udp
+$ftp attach-agent $tcp
+
+#connecter les agents avec les agents coresspondant
+$ns connect $udp $agentNull 
+$ns connect $tcp $tcpSink 
+
+#configurations 
+$ns queue-limit $n(2) $n(3) 10
+
+$cbr set packetSize_ 1000bytes
+$cbr set rate_ 1Mb
+
+$ns duplex-link-op $n(0) $n(2) orient right-down
+$ns duplex-link-op $n(1) $n(2) orient right-up
+$ns duplex-link-op $n(2) $n(3) orient right
+
+#coloration
+$ns color 1 Red
+$ns color 2 Blue
+$ns color 3 Green
+
+$tcp set class_ 1
+$udp set class_ 2
+#$tcpSink set class_ 3
+
+#declancher le trafic cbf
+$ns at 0.1 "$cbr start"
+$ns at 4.5 "$cbr stop"
+#declancher le trafic ftp
+$ns at 1 "$ftp start"
+$ns at 4 "$ftp stop"
+
+#Appeler la procédure de terminaison apres un temmps t 
+$ns at 5.0 "finish"
+
+#Executer la simulation
+$ns run
+\end{lstlisting}
 
 \end{document}

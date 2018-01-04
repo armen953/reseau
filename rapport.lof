@@ -3,3 +3,10 @@
 \contentsline {figure}{\numberline {2}{\ignorespaces L'interface graphique nam}}{8}{figure.2}
 \contentsline {figure}{\numberline {3}{\ignorespaces Ajout de lien entre 2 n\IeC {\oe }uds}}{9}{figure.3}
 \contentsline {figure}{\numberline {4}{\ignorespaces Configuration source CBR}}{9}{figure.4}
+\contentsline {figure}{\numberline {5}{\ignorespaces R\IeC {\'e}seau \IeC {\`a} r\IeC {\'e}aliser}}{10}{figure.5}
+\contentsline {figure}{\numberline {6}{\ignorespaces Envoie de donn\IeC {\'e} par UDP}}{12}{figure.6}
+\contentsline {figure}{\numberline {7}{\ignorespaces Demande de connexion TCP}}{12}{figure.7}
+\contentsline {figure}{\numberline {8}{\ignorespaces Accepte demande de connexion TCP}}{13}{figure.8}
+\contentsline {figure}{\numberline {9}{\ignorespaces Accus\IeC {\'e} de r\IeC {\'e}ception d'un paquet}}{13}{figure.9}
+\contentsline {figure}{\numberline {10}{\ignorespaces Perte de paquet}}{14}{figure.10}
+\contentsline {figure}{\numberline {11}{\ignorespaces D\IeC {\'e}tection de perte de la part de TCP}}{14}{figure.11}
